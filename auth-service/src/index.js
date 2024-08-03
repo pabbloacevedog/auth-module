@@ -1,20 +1,27 @@
-'use strict';
+import express from 'express';
+import { createServer } from 'http';
+import dotenv from 'dotenv';
+import { loadModules } from './middleware/loadModules.js';
+import { setupGraphQL } from './middleware/graphql.js';
+import { startServer } from './middleware/startServer.js';
 
-module.exports = {
-  /**
-   * An asynchronous register function that runs before
-   * your application is initialized.
-   *
-   * This gives you an opportunity to extend code.
-   */
-  register(/*{ strapi }*/) {},
+dotenv.config();
 
-  /**
-   * An asynchronous bootstrap function that runs before
-   * your application gets started.
-   *
-   * This gives you an opportunity to set up your data model,
-   * run jobs, or perform some special logic.
-   */
-  bootstrap(/*{ strapi }*/) {},
-};
+// Crear servidor express
+const app = express();
+const httpServer = createServer(app);
+
+// Cargar módulos
+loadModules(app);
+
+// Configurar GraphQL
+setupGraphQL(app, httpServer);
+
+// Manejador de errores global
+app.use((err, req, res, next) => {
+    console.error('Error no capturado:', err);
+    res.status(500).send('Ocurrió un error');
+});
+
+// Iniciar servidor
+startServer(httpServer);
