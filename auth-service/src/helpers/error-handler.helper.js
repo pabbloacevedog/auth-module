@@ -1,5 +1,7 @@
 import { ApolloServerErrorCode } from '@apollo/server/errors';
 import { GraphQLError } from 'graphql';
+import translations from '../utils/translations.js';
+import { asyncLocalStorage } from '../middleware/languageMiddleware.js';
 
 export const ErrorTypes = {
     BAD_USER_INPUT: {
@@ -39,11 +41,19 @@ export const ErrorTypes = {
         errorStatus: 500,
     },
 };
-
-//throwCustomError function
-export default (errorMessage, errorType) => {
-    // console.log('Throwing custom error');
-    // console.log('Error types in custom: ', errorType);
+const getCurrentLanguage = () => {
+    const store = asyncLocalStorage.getStore();
+    let lang = store ? store.get('lang') : 'en';
+    // Solo tomar el prefijo del idioma (p. ej., 'es' en lugar de 'es-419')
+    lang = lang.split('-')[0];
+    return lang;
+};
+// Función para lanzar errores personalizados
+export default (errorType) => {
+    const lang = getCurrentLanguage();
+    console.log(errorType.errorCode)
+    console.log(lang)
+    const errorMessage = translations[lang][errorType.errorCode] || translations['en'][errorType.errorCode];
     throw new GraphQLError(errorMessage, {
         extensions: {
             code: errorType.errorCode,

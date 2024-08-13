@@ -5,9 +5,7 @@ import crypto from 'crypto';
 import models from '../models/index.js';
 import { sendEmail } from '../utils/emailService.js';
 import { JWT_EXPIRES, JWT_SECRET, RESET_PASSWORD_URL } from '../config/config.js';
-import throwCustomError, {
-    ErrorTypes,
-} from '../helpers/error-handler.helper.js';
+import throwCustomError, { ErrorTypes } from '../helpers/error-handler.helper.js';
 // Get un user por email
 export async function getUser(email) {
     return await models.User.findOne({ where: { email } });
@@ -28,10 +26,7 @@ export async function getActions(roleId) {
         }
     });
     if (!role || !role.Actions) {
-        throwCustomError(
-            'No actions found for this role.',
-            ErrorTypes.NO_ACTIONS_FOR_ROLE
-        );
+        throwCustomError(ErrorTypes.NO_ACTIONS_FOR_ROLE);
     }
     return role.Actions.map(action => action.name);
 }
@@ -39,22 +34,17 @@ export async function getActions(roleId) {
 // Función para iniciar sesión
 export async function login(email, password, res) {
     const user = await getUser(email);
-
+    console.log(ErrorTypes)
+    console.log(throwCustomError)
     if (!user) {
-        throwCustomError(
-            `No tenemos ningún usuario registrado con el email ${email}. Por favor regístrese.`,
-            ErrorTypes.BAD_USER_INPUT
-        );
+        throwCustomError(ErrorTypes.BAD_USER_INPUT);
     }
     // console.log('password recibida ', password)
     // console.log('password bd ', user.password)
     const passwordMatch = await bcrypt.compare(password, user.password);
     // console.log('passwordMatch', passwordMatch);
     if (!passwordMatch) {
-        throwCustomError(
-            `Lo sentimos, la contraseña que ingresaste es incorrecta. Inténtalo de nuevo.`,
-            ErrorTypes.BAD_USER_PASSWORD
-        );
+        throwCustomError(ErrorTypes.BAD_USER_PASSWORD);
     }
 
     const actions = await getActions(user.role_id);
@@ -76,10 +66,7 @@ export async function signup(email, password) {
     const user = await getUser(email);
 
     if (user) {
-        throwCustomError(
-            `Ya tenemos un usuario registrado con el email ${email}. Por favor Inicie sesión.`,
-            ErrorTypes.ALREADY_EXISTS
-        );
+        throwCustomError(ErrorTypes.ALREADY_EXISTS);
     }
 
     // const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
@@ -98,10 +85,7 @@ export async function forgotPassword(email) {
     const user = await models.User.findOne({ where: { email } });
 
     if (!user) {
-        throwCustomError(
-            `No tenemos ningún usuario registrado con el email ${email}. Por favor regístrese.`,
-            ErrorTypes.BAD_USER_INPUT
-        );
+        throwCustomError(ErrorTypes.BAD_USER_INPUT);
     }
 
     const verification_code = crypto.randomBytes(32).toString('hex');
@@ -129,10 +113,7 @@ export async function resetPassword(verification_code, newPassword) {
     });
 
     if (!user) {
-        throwCustomError(
-            'Invalid or expired password reset token',
-            ErrorTypes.INVALID_RESET_TOKEN
-        );
+        throwCustomError(ErrorTypes.INVALID_RESET_TOKEN);
     }
 
     user.password = await bcrypt.hash(newPassword, 10);

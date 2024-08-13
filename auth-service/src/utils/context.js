@@ -23,24 +23,21 @@ const context = async ({ req, res }) => {
     const token = req.cookies ? req.cookies.authToken : null;
 
     // Permitir operaciones públicas sin autenticación
-    const publicOperations = ['PublicData', 'customerSignup', 'customerLogin', 'IntrospectionQuery'];
+    const publicOperations = ['PublicData', 'Signup', 'Login', 'IntrospectionQuery'];
     if (publicOperations.includes(req.body.operationName)) {
         return {};
     }
 
     // Verificar si el token está presente
     if (!token) {
-        throwCustomError(
-            'Invalid or expired token',
-            ErrorTypes.INVALID_TOKEN
-        );
+        throwCustomError(ErrorTypes.INVALID_TOKEN);
     }
 
     // Intentar recuperar un usuario con el token
     const user = await getUserToken(token);
 
     if (!user) {
-        throwCustomError('User is not Authenticated', ErrorTypes.UNAUTHENTICATED);
+        throwCustomError(ErrorTypes.UNAUTHENTICATED);
     }
 
     // Añadir el usuario al contexto

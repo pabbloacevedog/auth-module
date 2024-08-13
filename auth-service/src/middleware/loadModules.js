@@ -4,7 +4,7 @@ import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 import helmet from 'helmet';
 import { CLIENT } from '../config/config.js';
-
+import { languageMiddleware } from './languageMiddleware.js';
 export function loadModules(app) {
     console.info('SETUP - Cargando módulos...');
 
@@ -13,7 +13,7 @@ export function loadModules(app) {
         credentials: true,
         optionsSuccessStatus: 200,
     };
-
+    app.use(languageMiddleware);
     app.use(cors(corsOptions));
     app.use(helmet({ contentSecurityPolicy: process.env.NODE_ENV === 'production' ? undefined : false }));
     app.use(bodyParser.json());

@@ -9,6 +9,17 @@ export async function setupGraphQL(app, httpServer) {
     const apolloServer = new ApolloServer({
         schema,
         context,
+        formatError: (err) => {
+            // formatea el error para que no se vea el stacktrace en el client
+            const error = {
+                message: err.message,
+                extensions: {
+                    code: err.extensions.code,
+                    http: err.extensions.http
+                }
+            };
+            return error;
+        },
         introspection: true,
     });
 
