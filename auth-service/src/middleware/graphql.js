@@ -1,6 +1,6 @@
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
-import schema from '../schema/index.js';
+import schema from '../graphql/index.js';
 import context from '../utils/context.js';
 
 export async function setupGraphQL(app, httpServer) {

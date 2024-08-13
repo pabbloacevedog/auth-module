@@ -1,73 +1,145 @@
 // src/services/authService.js
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 import models from '../models/index.js';
-import { JWT_EXPIRES, JWT_SECRET } from '../config/config.js';
-
-// Obtener un usuario por email
-export async function obtenerUsuario(email) {
+import { sendEmail } from '../utils/emailService.js';
+import { JWT_EXPIRES, JWT_SECRET, RESET_PASSWORD_URL } from '../config/config.js';
+import throwCustomError, {
+    ErrorTypes,
+} from '../helpers/error-handler.helper.js';
+// Get un user por email
+export async function getUser(email) {
     return await models.User.findOne({ where: { email } });
 }
 
 // Generar token JWT
-export async function generarToken(usuario) {
-    const datosUsuario = usuario.get();
-    return jwt.sign(datosUsuario, JWT_SECRET, { expiresIn: JWT_EXPIRES });
+export async function generateToken(user) {
+    const datosUser = user.get();
+    return jwt.sign(datosUser, JWT_SECRET, { expiresIn: JWT_EXPIRES });
 }
 
-// Obtener las acciones (permisos) de un rol
-export async function obtenerAcciones(roleId) {
+// Get las actions (permisos) de un rol
+export async function getActions(roleId) {
     const role = await models.Role.findByPk(roleId, {
-        include: [{
-            model: models.Accion,
+        include: {
+            model: models.Action,
             through: { attributes: [] },
-        }]
+        }
     });
-    return role.acciones.map(accion => accion.name);
+    if (!role || !role.Actions) {
+        throwCustomError(
+            'No actions found for this role.',
+            ErrorTypes.NO_ACTIONS_FOR_ROLE
+        );
+    }
+    return role.Actions.map(action => action.name);
 }
 
 // Función para iniciar sesión
 export async function login(email, password, res) {
-    const usuario = await obtenerUsuario(email);
+    const user = await getUser(email);
 
-    if (!usuario) {
-        throw new Error(`No tenemos ningún usuario registrado con el email ${email}. Por favor regístrese.`);
+    if (!user) {
+        throwCustomError(
+            `No tenemos ningún usuario registrado con el email ${email}. Por favor regístrese.`,
+            ErrorTypes.BAD_USER_INPUT
+        );
     }
-
-    const passwordMatch = await bcrypt.compare(password, usuario.password);
+    // console.log('password recibida ', password)
+    // console.log('password bd ', user.password)
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    // console.log('passwordMatch', passwordMatch);
     if (!passwordMatch) {
-        throw new Error(`Lo sentimos, la contraseña que ingresaste es incorrecta. Inténtalo de nuevo.`);
+        throwCustomError(
+            `Lo sentimos, la contraseña que ingresaste es incorrecta. Inténtalo de nuevo.`,
+            ErrorTypes.BAD_USER_PASSWORD
+        );
     }
 
-    const acciones = await obtenerAcciones(usuario.role_id);
+    const actions = await getActions(user.role_id);
 
-    const token = await generarToken(usuario);
+    const token = await generateToken(user);
+    // Solo configura la cookie si el objeto 'res' está presente
+    if (res && res.cookie) {
+        res.cookie('token', token, {
+            httpOnly: true,
+            // secure: process.env.NODE_ENV === 'production',
+        });
+    }
+    return { token, userData: { email: user.email, actions } };
 
-    res.cookie('token', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-    });
-
-    return { token, userData: { ...usuario.get(), acciones } };
 }
 
-// Función para registrar un nuevo usuario
+// Función para registrar un new user
 export async function signup(email, password) {
-    const usuario = await obtenerUsuario(email);
+    const user = await getUser(email);
 
-    if (usuario) {
-        throw new Error(`Ya tenemos un usuario registrado con el email ${email}. Por favor Inicie sesión.`);
+    if (user) {
+        throwCustomError(
+            `Ya tenemos un usuario registrado con el email ${email}. Por favor Inicie sesión.`,
+            ErrorTypes.ALREADY_EXISTS
+        );
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
-    await models.User.create({
+    const newUser = await models.User.create({
         email,
-        password: hashedPassword,
-        role_id: 2,
+        password,
+        role_id: 1,
     });
 
-    // Aquí puedes enviar el código de verificación por email
+    return { email: newUser.email, message: "Usuario creado con éxito." };
 
-    return { message: "Usuario creado con éxito. Por favor valida tu email para continuar." };
+}
+//Funcion para recuperar password
+export async function forgotPassword(email) {
+    const user = await models.User.findOne({ where: { email } });
+
+    if (!user) {
+        throwCustomError(
+            `No tenemos ningún usuario registrado con el email ${email}. Por favor regístrese.`,
+            ErrorTypes.BAD_USER_INPUT
+        );
+    }
+
+    const verification_code = crypto.randomBytes(32).toString('hex');
+    const verification_expires = new Date(Date.now() + 3600000); // 1 hora para expirar
+
+    user.verification_code = verification_code;
+    user.verification_expires = verification_expires;
+
+    await user.save();
+
+    const resetLink = RESET_PASSWORD_URL + `${verification_code}`;
+
+    await sendEmail(email, 'Restablecimiento de Contraseña', `Por favor, usa el siguiente enlace para restablecer tu contraseña: ${resetLink}`);
+
+    return { message: 'Password reset link sent to your email.' };
+}
+export async function resetPassword(verification_code, newPassword) {
+    const user = await models.User.findOne({
+        where: {
+            verification_code,
+            verification_expires: {
+                [Op.gt]: new Date(),
+            },
+        },
+    });
+
+    if (!user) {
+        throwCustomError(
+            'Invalid or expired password reset token',
+            ErrorTypes.INVALID_RESET_TOKEN
+        );
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    user.verification_code = null;
+    user.verification_expires = null;
+
+    await user.save();
+
+    return { message: 'Password has been reset successfully' };
 }

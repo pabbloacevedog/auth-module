@@ -1,6 +1,8 @@
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from '../config/config.js'; // Asegúrate de que JWT_SECRET esté correctamente exportado desde config.js
-
+import throwCustomError, {
+    ErrorTypes,
+} from '../helpers/error-handler.helper.js';
 // Función para verificar y obtener el usuario a partir del token JWT
 const getUserToken = async (token) => {
     try {
@@ -28,14 +30,17 @@ const context = async ({ req, res }) => {
 
     // Verificar si el token está presente
     if (!token) {
-        throw new Error('No se proporcionó un token JWT.');
+        throwCustomError(
+            'Invalid or expired token',
+            ErrorTypes.INVALID_TOKEN
+        );
     }
 
     // Intentar recuperar un usuario con el token
     const user = await getUserToken(token);
 
     if (!user) {
-        throw new Error('Usuario no autenticado.');
+        throwCustomError('User is not Authenticated', ErrorTypes.UNAUTHENTICATED);
     }
 
     // Añadir el usuario al contexto

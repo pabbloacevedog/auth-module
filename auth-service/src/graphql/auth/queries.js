@@ -1,7 +1,7 @@
 
-import { GraphQLString, GraphQLInt } from 'graphql';
-import LoginType from '../type.js';
-import { authResolver } from '../resolvers.js';
+import { GraphQLString } from 'graphql';
+import LoginType from './type.js';
+import { authResolver } from './resolvers.js';
 
 export const login = {
 	type: LoginType,

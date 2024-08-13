@@ -40,7 +40,14 @@ const LoginType = new GraphQLObjectType({
 		role_id: {
             type: GraphQLString
         },
-        acciones: { type: new GraphQLList(GraphQLString) },
+        token: {
+            type: GraphQLString
+        },
+        message: {
+            type: GraphQLString
+        },
+        actions: { type: new GraphQLList(GraphQLString) },
+        userData: { type: new GraphQLList(GraphQLString) },
     })
 })
 

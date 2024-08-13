@@ -3,7 +3,7 @@ import { GraphQLObjectType } from 'graphql';
 
 // Importa las consultas de cada modelo
 
-import * as authQueries from './auth/fields/queries.js';
+import * as authQueries from './auth/queries.js';
 
 console.info(`INFO - Cargando queries.`);
 
