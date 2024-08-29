@@ -1,8 +1,8 @@
 // Imports
 import {GraphQLObjectType, GraphQLString, GraphQLList} from 'graphql'
 
-// Login type
-const LoginType = new GraphQLObjectType({
+// Auth type
+const AuthType = new GraphQLObjectType({
     name: 'Login',
     description: 'Autentincación de usuario',
 
@@ -51,4 +51,4 @@ const LoginType = new GraphQLObjectType({
     })
 })
 
-export default LoginType
+export default AuthType

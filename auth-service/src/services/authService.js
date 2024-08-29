@@ -1,5 +1,5 @@
 // src/services/authService.js
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import models from '../models/index.js';
@@ -123,4 +123,28 @@ export async function resetPassword(verification_code, newPassword) {
     await user.save();
 
     return { message: 'Password has been reset successfully' };
+}
+export async function getUserById(userId) {
+    try {
+        const user = await User.findByPk(userId);
+        if (!user) {
+            throw new Error('User not found');
+        }
+        return user;
+    } catch (error) {
+        throw new Error(error.message);
+    }
+}
+export async function updateUser(userId, updateData) {
+    try {
+        const user = await User.findByPk(userId);
+        if (!user) {
+            throw new Error('User not found');
+        }
+
+        await user.update(updateData);
+        return user;
+    } catch (error) {
+        throw new Error(error.message);
+    }
 }

@@ -1,17 +1,17 @@
 // auth/fields/mutations.js
 
 import { GraphQLString, GraphQLInt } from 'graphql';
-import LoginType from './type.js';
+import AuthType from './type.js';
 import { authResolver } from './resolvers.js';
 
 export const register = {
-	type: LoginType,
-	args: {
-		email: { type: GraphQLString },
-		password: { type: GraphQLString },
-		// ... otros campos necesarios
-	},
-	resolve: authResolver.Mutation.signup
+    type: AuthType,
+    args: {
+        email: { type: GraphQLString },
+        password: { type: GraphQLString },
+        // ... otros campos necesarios
+    },
+    resolve: authResolver.Mutation.signup
 };
 
 export const forgotPassword = {
@@ -29,4 +29,18 @@ export const resetPassword = {
         newPassword: { type: GraphQLString },
     },
     resolve: authResolver.Mutation.resetPassword,
+};
+
+export const updateUser = {
+    type: UserType,
+    args: {
+        user_id: { type: GraphQLID },
+        name: { type: GraphQLString },
+        email: { type: GraphQLString },
+        password: { type: GraphQLString },
+        personal_phone: { type: GraphQLString },
+        avatar: { type: GraphQLString },
+        state: { type: GraphQLString },
+    },
+    resolve: authResolver.Mutation.updateUser,
 };

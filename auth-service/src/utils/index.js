@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 // import CryptoJS from 'crypto-js';
 import { SALT_ROUNDS, PASSPHRASE } from '../config/config.js';
 // import jwt from 'jsonwebtoken';
