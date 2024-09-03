@@ -1,50 +1,7 @@
 <template>
-    <q-layout view="hHh lpR fFf">
-        <template v-if="!isAuthRoute">
-            <q-header>
-                <q-toolbar class="q-pa-md bg-primary text-white">
-                    <q-btn flat round dense icon="menu" aria-label="Menu" @click="toggleLeftDrawer" />
-                    <q-toolbar-title class="q-ml-md">
-                        My Basic Auth
-                    </q-toolbar-title>
-                    <q-space />
-                    <template v-if="!isAuthenticated">
-                        <q-btn flat round dense icon="login" label="Login" @click="router.push('/login')"
-                            class="text-white q-mr-md" />
-                        <q-btn flat round dense icon="person_add" label="Register" @click="router.push('/register')"
-                            class="text-white q-mr-md" />
-                    </template>
-                    <template v-else>
-                        <q-btn flat round dense icon="home" label="Home" @click="router.push('/')"
-                            class="text-white q-mr-md" />
-                        <q-btn flat round dense icon="logout" label="Logout" @click="logout" class="text-white q-mr-md" />
-                    </template>
-                </q-toolbar>
-            </q-header>
-
-            <q-drawer v-model="leftDrawerOpen" show-if-above :mini="miniState" @mouseover="miniState = false" overlay
-                @mouseout="miniState = true" :width="200" :breakpoint="500" bordered
-                :class="$q.dark.isActive ? 'glass' : 'glass'">
-                <q-list>
-                    <q-item to="/" clickable v-ripple class="text-white">
-                        <q-item-section avatar>
-                            <q-icon name="home" />
-                        </q-item-section>
-                        <q-item-section>Home</q-item-section>
-                    </q-item>
-                    <q-item to="/protected" clickable v-ripple class="text-white">
-                        <q-item-section avatar>
-                            <q-icon name="lock" />
-                        </q-item-section>
-                        <q-item-section>Protected Page</q-item-section>
-                    </q-item>
-                </q-list>
-            </q-drawer>
-        </template>
-        <q-page-container>
-            <router-view />
-        </q-page-container>
-    </q-layout>
+	<q-page-container>
+		<router-view />
+	</q-page-container>
 </template>
 
 <script>

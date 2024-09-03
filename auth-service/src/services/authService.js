@@ -57,7 +57,7 @@ export async function login(email, password, res) {
             // secure: process.env.NODE_ENV === 'production',
         });
     }
-    return { token, userData: { email: user.email, actions } };
+    return { token, email: user.email, actions };
 
 }
 

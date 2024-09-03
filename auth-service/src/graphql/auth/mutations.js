@@ -1,6 +1,6 @@
 // auth/fields/mutations.js
 
-import { GraphQLString, GraphQLInt } from 'graphql';
+import { GraphQLString, GraphQLID } from 'graphql';
 import AuthType from './type.js';
 import { authResolver } from './resolvers.js';
 
@@ -32,7 +32,7 @@ export const resetPassword = {
 };
 
 export const updateUser = {
-    type: UserType,
+    type: AuthType,
     args: {
         user_id: { type: GraphQLID },
         name: { type: GraphQLString },

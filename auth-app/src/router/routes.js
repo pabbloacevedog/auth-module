@@ -2,12 +2,12 @@
 const routes = [
     {
         path: '/',
-        component: () => import('layouts/MainLayout.vue'),
+        component: async () => await  import('../App.vue'),
         children: [
-            { path: '', component: () => import('pages/Home.vue') },
-            { path: 'login', component: () => import('components/Login.vue') },
-            { path: 'register', component: () => import('components/Register.vue') },
-            { path: 'protected', component: () => import('pages/ProtectedPage.vue'), meta: { requiresAuth: true } },
+            { path: '', component: async () => await  import('pages/Home.vue') },
+            { path: 'login', component: async () => await import('components/Login.vue') },
+            { path: 'register', component: async () => await import('components/Register.vue') },
+            { path: 'protected', component: async () => await import('pages/ProtectedPage.vue'), meta: { requiresAuth: true } },
         ],
     },
 

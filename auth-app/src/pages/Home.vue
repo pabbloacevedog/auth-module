@@ -5,8 +5,8 @@
         <div class="overlay"></div>
         <div class="content-container row justify-center items-center">
             <div class="text-center q-pa-xl">
-                <h1 class="text-white">Welcome to Our Application</h1>
-                <p class="text-white">Start managing your finance faster and better.</p>
+                <h1 class="text-white">Welcome to Auth Application</h1>
+                <p class="text-white">Start managing your authentication system.</p>
                 <div class="row justify-center q-mt-md">
                     <q-btn label="Login" color="primary" class="q-mr-md" @click="handleLogin" />
                     <q-btn label="Register" color="secondary" @click="handleRegister" />

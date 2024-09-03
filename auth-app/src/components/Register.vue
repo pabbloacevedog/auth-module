@@ -12,7 +12,6 @@
                     <h2>Create your account</h2>
                     <p>Start managing your finance faster and better</p>
                     <q-form @submit="onSubmit">
-                        <q-input v-model="username" label="Username" outlined class="q-mb-md" />
                         <q-input v-model="email" label="Email" type="email" outlined class="q-mb-md" />
                         <q-input v-model="password" label="Password" type="password" outlined class="q-mb-md" />
                         <q-btn label="Register" type="submit" color="primary" class="full-width q-mb-md" />
@@ -40,7 +39,7 @@ const $q = useQuasar();
 
 const onSubmit = async () => {
     try {
-        const user = await authStore.register({ username: username.value, email: email.value, password: password.value });
+        const user = await authStore.register({ email: email.value, password: password.value });
         $q.notify({
             type: 'positive',
             message: 'Registro exitoso'

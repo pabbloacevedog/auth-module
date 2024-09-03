@@ -13,7 +13,7 @@ export const login = {
 };
 
 export const userSettings = {
-    type: UserType,
+    type: AuthType,
     args: {
         userId: { type: GraphQLID },
     },
