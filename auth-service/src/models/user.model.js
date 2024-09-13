@@ -15,19 +15,6 @@ const initializeUser = (sequelize) => {
             allowNull: false,
             primaryKey: true
         },
-        rut_user: {
-            type: DataTypes.STRING(20)
-        },
-        name: {
-            type: DataTypes.STRING(1000)
-        },
-        user: {
-            type: DataTypes.STRING(255),
-            unique: true,
-            validate: {
-                is: /^[a-zA-Z0-9_]+$/, // Solo letras, números y guiones bajos
-            }
-        },
         password: {
             type: DataTypes.STRING(1000) // Considerar encriptación y longitud adecuada
         },
@@ -36,6 +23,19 @@ const initializeUser = (sequelize) => {
             unique: true,
             validate: {
                 isEmail: true,
+            }
+        },
+        rut_user: {
+            type: DataTypes.STRING(20)
+        },
+        name: {
+            type: DataTypes.STRING(1000)
+        },
+        username: {
+            type: DataTypes.STRING(255),
+            unique: true,
+            validate: {
+                is: /^[a-zA-Z0-9_]+$/, // Solo letras, números y guiones bajos
             }
         },
         personal_phone: {
@@ -74,9 +74,13 @@ const initializeUser = (sequelize) => {
                     user.password = await hashPassword(user.password);
                 }
             },
-            beforeUpdate: async (user) => {
-                if (user.password) {
-                    user.password = await hashPassword(user.password);
+            // Hook para hashear la contraseña solo si ha cambiado
+            beforeUpdate: async (user, options) => {
+                // Verificar si la contraseña ha cambiado
+                if (user.password !== user.previous('password')) {
+                    if (user.password) {
+                        user.password = await hashPassword(user.password);
+                    }
                 }
             },
         },

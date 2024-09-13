@@ -25,5 +25,7 @@ export async function setupGraphQL(app, httpServer) {
 
     await apolloServer.start();
 
-    app.use('/graphql', expressMiddleware(apolloServer));
+    app.use('/graphql', expressMiddleware(apolloServer,{
+        context: context
+    }));
 }
