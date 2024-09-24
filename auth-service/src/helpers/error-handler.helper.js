@@ -1,6 +1,6 @@
 import { ApolloServerErrorCode } from '@apollo/server/errors';
 import { GraphQLError } from 'graphql';
-import translations from '../utils/translations.js';
+import errorTranslations from '../utils/errorTranslations.js';
 import { asyncLocalStorage } from '../middleware/languageMiddleware.js';
 
 export const ErrorTypes = {
@@ -10,6 +10,10 @@ export const ErrorTypes = {
     },
     BAD_USER_PASSWORD: {
         errorCode: 'BAD_USER_PASSWORD',
+        errorStatus: 400,
+    },
+    USER_NOT_FOUND: {
+        errorCode: 'USER_NOT_FOUND',
         errorStatus: 400,
     },
     BAD_REQUEST: {
@@ -34,20 +38,41 @@ export const ErrorTypes = {
     },
     UNAUTHORIZED: {
         errorCode: 'UNAUTHORIZED',
-        errorStatus: 401,
+        errorStatus: 403,
     },
     TOKEN_EXPIRED: {
         errorCode: 'TOKEN_EXPIRED',
         errorStatus: 401,
     },
-    ALREADY_EXISTS: {
-        errorCode: 'ALREADY_EXISTS',
+    USER_ALREADY_EXISTS: {
+        errorCode: 'USER_ALREADY_EXISTS',
         errorStatus: 400,
     },
     INTERNAL_SERVER_ERROR: {
         errorCode: ApolloServerErrorCode.INTERNAL_SERVER_ERROR,
         errorStatus: 500,
     },
+    PASSWORD_SAME_AS_OLD:{
+        errorCode: 'PASSWORD_SAME_AS_OLD',
+        errorStatus: 400,
+    },
+    INVALID_VERIFY_CODE: {
+        errorCode: 'INVALID_VERIFY_CODE',
+        errorStatus: 400,
+    },
+    EXPIRED_VERIFY_CODE: {
+        errorCode: 'EXPIRED_VERIFY_CODE',
+        errorStatus: 400,
+    },
+    WRONG_CURRENT_PASSWORD: {
+        errorCode: 'WRONG_CURRENT_PASSWORD',
+        errorStatus: 400,
+    },
+    EMAIL_NOT_VERIFIED: {
+        errorCode: 'EMAIL_NOT_VERIFIED',
+        statusCode: 403,
+    },
+
 };
 const getCurrentLanguage = () => {
     const store = asyncLocalStorage.getStore();
@@ -61,7 +86,7 @@ export default (errorType) => {
     const lang = getCurrentLanguage();
     console.log(errorType.errorCode)
     console.log(lang)
-    const errorMessage = translations[lang][errorType.errorCode] || translations['en'][errorType.errorCode];
+    const errorMessage = errorTranslations[lang][errorType.errorCode] || errorTranslations['en'][errorType.errorCode];
     throw new GraphQLError(errorMessage, {
         extensions: {
             code: errorType.errorCode,
